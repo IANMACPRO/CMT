@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Cremated Remains Screening Decision Assistant</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#173b68',
+                            900: '#0f2442',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bubble-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+        }
+        .bubble-card {
+            border-radius: 24px;
+            box-shadow: var(--bubble-shadow);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bubble-btn {
+            border-radius: 18px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bubble-btn:active {
+            transform: scale(0.97);
+        }
+        .glow-green {
+            box-shadow: 0 0 30px -5px rgba(34, 197, 94, 0.45);
+        }
+        .glow-amber {
+            box-shadow: 0 0 30px -5px rgba(245, 158, 11, 0.45);
+        }
+        .glow-red {
+            box-shadow: 0 0 30px -5px rgba(239, 68, 68, 0.5);
+        }
+        /* Custom styled checkboxes & radios */
+        .bubble-radio input[type="radio"]:checked + div {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.12);
+            box-shadow: inset 0 0 0 2px #3b82f6;
+        }
+        .dark .bubble-radio input[type="radio"]:checked + div {
+            background-color: rgba(59, 130, 246, 0.22);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Top Header -->
+    <header class="bg-gradient-to-r from-navy-900 via-navy-800 to-blue-900 text-white pt-safe pb-4 px-4 sm:px-6 shadow-xl sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto flex items-center justify-between pt-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner border border-white/20">
+                    <i class="fa-solid fa-box-archive text-amber-400"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/30">Official Job Aid Guide</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">v2.0 Bubble Edition</span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight mt-0.5">Cremated Remains Screening</h1>
+                </div>
+            </div>
+
+            <!-- Utility Buttons -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" aria-label="Toggle theme" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-200 transition-all border border-white/10">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+                <button onclick="resetAllForms()" class="px-3.5 py-2 rounded-2xl bg-white/15 hover:bg-white/25 text-xs font-bold text-white transition-all flex items-center gap-1.5 border border-white/20">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="max-w-5xl mx-auto px-4 mt-4 w-full">
+        <div class="bg-slate-200/80 dark:bg-slate-900/90 p-1.5 rounded-3xl flex gap-1 shadow-inner border border-slate-300/60 dark:border-slate-800">
+            <button id="tab-btn-wizard" onclick="switchTab('wizard')" class="flex-1 py-3 px-3 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+                <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                <span>Decision Assistant</span>
+            </button>
+            <button id="tab-btn-eval" onclick="switchTab('eval')" class="flex-1 py-3 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-shield-halved text-sm"></i>
+                <span>Alarm Evaluator (Pg 9)</span>
+            </button>
+            <button id="tab-btn-matrix" onclick="switchTab('matrix')" class="flex-1 py-3 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-table-list text-sm"></i>
+                <span>Job Aid Matrix</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-4 py-5 flex-1 w-full">
+
+        <!-- ================= TAB 1: DECISION ASSISTANT ================= -->
+        <section id="tab-wizard" class="space-y-6">
+            
+            <!-- Operational Notice -->
+            <div class="bg-amber-500/10 border-l-4 border-amber-500 rounded-2xl p-4 flex items-start gap-3 dark:bg-amber-500/10 dark:border-amber-400">
+                <i class="fa-solid fa-circle-info text-amber-600 dark:text-amber-400 text-lg mt-0.5"></i>
+                <div class="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <strong class="font-bold text-amber-900 dark:text-amber-300">Operational Reminders:</strong> For cremation containers, complete both ETD and CMT before making a clearance determination unless a shield alarm is present.
+                </div>
+            </div>
+
+            <!-- STEP 1: Select X-Ray Result -->
+            <div class="bubble-card bg-white dark:bg-slate-900 p-5 sm:p-6 border border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-md">1</span>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Choose X-Ray Image Result</h2>
+                    </div>
+                    <span class="text-xs text-slate-400 font-medium">Select one</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    
+                    <!-- Option A: No System Alarm >350mL -->
+                    <button onclick="setXray('no_alarm_gt350')" id="xray-btn-no_alarm_gt350" 
+                        class="bubble-btn p-4 border-2 border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 text-left flex flex-col justify-between hover:border-emerald-500 transition-all">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-check"></i> No System Alarm
+                                </span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 font-bold">Scenario 2</span>
+                            </div>
+                            <div class="font-extrabold text-slate-900 dark:text-white text-sm">No System Alarm (Red Overlay)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cremated remains are over 350 mL.</p>
+                        </div>
+                    </button>
+
+                    <!-- Option B: System Alarm Any Volume -->
+                    <button onclick="setXray('red_any')" id="xray-btn-red_any" 
+                        class="bubble-btn p-4 border-2 border-red-500/30 bg-red-50/50 dark:bg-red-950/20 text-left flex flex-col justify-between hover:border-red-500 transition-all">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-red-700 dark:text-red-400 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-bell"></i> System Alarm
+                                </span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 font-bold">Scenario 1</span>
+                            </div>
+                            <div class="font-extrabold text-slate-900 dark:text-white text-sm">System Alarm (Red Overlay)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Single red overlay alarm on remains of any volume.</p>
+                        </div>
+                    </button>
+
+                    <!-- Option C: Two System Alarms -->
+                    <button onclick="setXray('red_and_yellow')" id="xray-btn-red_and_yellow" 
+                        class="bubble-btn p-4 border-2 border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 text-left flex flex-col justify-between hover:border-amber-500 transition-all">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-amber-700 dark:text-amber-400 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Two Alarms
+                                </span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 font-bold">Scenario 3</span>
+                            </div>
+                            <div class="font-extrabold text-slate-900 dark:text-white text-sm">Two System Alarms</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Generated Red AND Yellow overlay system alarms.</p>
+                        </div>
+                    </button>
+
+                    <!-- Option D: Shield Alarm Only -->
+                    <button onclick="setXray('shield_yellow')" id="xray-btn-shield_yellow" 
+                        class="bubble-btn p-4 border-2 border-purple-500/30 bg-purple-50/50 dark:bg-purple-950/20 text-left flex flex-col justify-between hover:border-purple-500 transition-all">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-purple-700 dark:text-purple-400 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-shield-cat"></i> Shield Alarm
+                                </span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 font-bold">Scenario 4</span>
+                            </div>
+                            <div class="font-extrabold text-slate-900 dark:text-white text-sm">Shield Alarm (Yellow)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Yellow overlay shield alarm. ETD/CMT not required.</p>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- STEP 2 & 3: Secondary Testing (ETD & CMT) -->
+            <div id="secondary-testing-panel" class="bubble-card bg-white dark:bg-slate-900 p-5 sm:p-6 border border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <span class="w-7 h-7 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-md">2</span>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Record ETD & Colourimetric (CMT) Results</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- ETD Selection -->
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                            <i class="fa-solid fa-vial"></i> ETD Trace Result
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setEtd('clear')" id="etd-btn-clear" class="bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all">
+                                <i class="fa-solid fa-circle-check text-green-500 text-base block mb-1"></i>
+                                Does NOT Alarm
+                            </button>
+                            <button onclick="setEtd('alarm')" id="etd-btn-alarm" class="bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all">
+                                <i class="fa-solid fa-bell text-red-500 text-base block mb-1"></i>
+                                Trace Alarms
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CMT Selection -->
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                            <i class="fa-solid fa-flask"></i> Colourimetric (CMT) Results
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setCmt('both_negative')" id="cmt-btn-both_negative" class="bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all">
+                                <i class="fa-solid fa-[#22c55e] fa-minus-circle text-green-500 text-base block mb-1"></i>
+                                Both NEGATIVE
+                            </button>
+                            <button onclick="setCmt('one_or_both_positive')" id="cmt-btn-one_or_both_positive" class="bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all">
+                                <i class="fa-solid fa-plus-circle text-amber-500 text-base block mb-1"></i>
+                                1 or Both POSITIVE
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Disabled message for Shield Alarms -->
+                <div id="shield-na-notice" class="hidden mt-4 p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-center border border-dashed border-slate-300 dark:border-slate-700">
+                    <i class="fa-solid fa-shield-halved text-slate-400 text-2xl mb-1"></i>
+                    <div class="text-sm font-bold text-slate-700 dark:text-slate-300">ETD / CMT Testing Exempt</div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Shield Alarm (Scenario 4) does not require ETD or Colourimetric testing.</p>
+                </div>
+            </div>
+
+            <!-- RESULT OUTCOME CARD -->
+            <div id="outcome-card" class="transition-all duration-300">
+                <!-- Dynamically injected -->
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="flex flex-wrap gap-3 pt-2">
+                <button onclick="copyWizardResult()" class="bubble-btn px-5 py-3 bg-slate-900 text-white dark:bg-slate-800 hover:bg-slate-800 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-700 shadow-md">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy Decision Summary</span>
+                </button>
+                <button onclick="resetWizard()" class="bubble-btn px-5 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center gap-2 hover:bg-slate-300">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                    <span>Reset Assistant</span>
+                </button>
+            </div>
+
+        </section>
+
+
+        <!-- ================= TAB 2: ALARM RESOLUTION EVALUATOR (PAGE 9) ================= -->
+        <section id="tab-eval" class="hidden space-y-6">
+            
+            <div class="bubble-card bg-white dark:bg-slate-900 p-5 sm:p-6 border border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Review Resolution Outcomes (Page 9)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Use after performing ETD and/or CMT alarm resolution protocols.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    
+                    <!-- Resolved Category -->
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">Category A</span>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mt-3">Alarm CAN Be Resolved</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">No threats or weapons detected following resolution procedure.</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <button onclick="setEvalChoice('resolved_no_xray')" id="eval-btn-resolved_no_xray" class="bubble-btn w-full p-3.5 text-left border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-blue-500 transition-all">
+                                <div class="font-extrabold">X-Ray DID NOT generate a system alarm</div>
+                                <div class="text-[11px] text-slate-500 font-normal">No red overlay generated during initial X-Ray</div>
+                            </button>
+
+                            <button onclick="setEvalChoice('resolved_with_xray')" id="eval-btn-resolved_with_xray" class="bubble-btn w-full p-3.5 text-left border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-amber-500 transition-all">
+                                <div class="font-extrabold">X-Ray GENERATED a system alarm</div>
+                                <div class="text-[11px] text-slate-500 font-normal">Red overlay was generated on X-Ray</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Unresolved Category -->
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">Category B</span>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mt-3">Alarm CAN NOT Be Resolved</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">Trace/CMT alarm remains unresolved or suspicious.</p>
+                        </div>
+
+                        <button onclick="setEvalChoice('cannot_resolve')" id="eval-btn-cannot_resolve" class="bubble-btn w-full p-4 text-left border-2 border-red-500/40 bg-red-50 dark:bg-red-950/30 text-xs font-bold text-red-700 dark:text-red-300 hover:border-red-600 transition-all">
+                            <div class="font-extrabold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Alarm CAN NOT Be Resolved
+                            </div>
+                            <div class="text-[11px] text-red-600 dark:text-red-400 font-normal mt-1">Requires immediate emergency escalation protocols.</div>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Page 9 Result Outcome Box -->
+                <div id="eval-outcome-container" class="mt-6">
+                    <!-- Dynamic Page 9 Result -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ================= TAB 3: JOB AID REFERENCE MATRIX ================= -->
+        <section id="tab-matrix" class="hidden space-y-6">
+            <div class="bubble-card bg-white dark:bg-slate-900 p-5 sm:p-6 border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Official Job Aid Reference Matrix</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Summarized directly from pages 8 & 9 of Colourimetrics Job Aid.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 uppercase text-[10px] tracking-wider font-extrabold">
+                            <tr>
+                                <th class="p-3 border-b border-slate-200 dark:border-slate-700 text-center w-10">#</th>
+                                <th class="p-3 border-b border-slate-200 dark:border-slate-700">IF the X-Ray</th>
+                                <th class="p-3 border-b border-slate-200 dark:border-slate-700">AND</th>
+                                <th class="p-3 border-b border-slate-200 dark:border-slate-700">Then (Outcome)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+                            <!-- Scenario 1 -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-400">1</td>
+                                <td class="p-3">Generated a system alarm (red overlay) on cremated remains of ANY volume.</td>
+                                <td class="p-3">ETD trace does NOT alarm AND both CMT results are NEGATIVE.</td>
+                                <td class="p-3 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20">Clear the cremated remains.</td>
+                            </tr>
+                            <!-- Scenario 2a -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-400" rowspan="3">2</td>
+                                <td class="p-3" rowspan="3">Did NOT generate a system alarm (red overlay) BUT cremated remains are OVER 350 mL.</td>
+                                <td class="p-3">ETD trace does NOT alarm AND both CMT results are NEGATIVE.</td>
+                                <td class="p-3 font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20">Clear the cremated remains.</td>
+                            </tr>
+                            <!-- Scenario 2b -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3">ETD trace alarms OR Both ETD & 1/both CMT results are POSITIVE.</td>
+                                <td class="p-3 text-amber-600 dark:text-amber-400 font-bold">Follow ETD alarm resolution. Remains CANNOT be cleared.</td>
+                            </tr>
+                            <!-- Scenario 2c -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3">ETD trace does NOT alarm BUT 1 or both CMT results are POSITIVE.</td>
+                                <td class="p-3 text-amber-600 dark:text-amber-400 font-bold">Follow CMT alarm resolution. Remains CANNOT be cleared.</td>
+                            </tr>
+                            <!-- Scenario 3a -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 border-t-2 border-slate-300 dark:border-slate-700">
+                                <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-400" rowspan="3">3</td>
+                                <td class="p-3" rowspan="3">Generated a system alarm (red overlay) on cremated remains of any volume, OR Generated TWO system alarms (red and yellow).</td>
+                                <td class="p-3">ETD trace does NOT alarm AND both CMT results are NEGATIVE.</td>
+                                <td class="p-3 font-bold text-amber-600 dark:text-amber-400">Remains CANNOT be cleared. Contact SDM/Line Lead.</td>
+                            </tr>
+                            <!-- Scenario 3b -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3">ETD trace alarms OR Both ETD & 1/both CMT results are POSITIVE.</td>
+                                <td class="p-3 text-red-600 dark:text-red-400 font-bold">Follow ETD alarm resolution. Remains CANNOT be cleared.</td>
+                            </tr>
+                            <!-- Scenario 3c -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3">ETD trace does NOT alarm BUT 1 or both CMT results are POSITIVE.</td>
+                                <td class="p-3 text-red-600 dark:text-red-400 font-bold">Follow CMT alarm resolution. Remains CANNOT be cleared.</td>
+                            </tr>
+                            <!-- Scenario 4 -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 border-t-2 border-slate-300 dark:border-slate-700">
+                                <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-400">4</td>
+                                <td class="p-3">Generated a shield alarm (yellow overlay).</td>
+                                <td class="p-3 text-slate-400 italic">ETD/CMT is not required</td>
+                                <td class="p-3 font-bold text-amber-600 dark:text-amber-400">Remains CANNOT be cleared. Contact SDM/Line Lead.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800 w-full">
+        Colourimetrics Job Aid - Alarm Resolution Companion Tool · For official screening guidance only.
+    </footer>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // State variables
+        let selectedXray = 'no_alarm_gt350'; // 'no_alarm_gt350', 'red_any', 'red_and_yellow', 'shield_yellow'
+        let selectedEtd = 'clear';           // 'clear', 'alarm'
+        let selectedCmt = 'both_negative';   // 'both_negative', 'one_or_both_positive'
+        let selectedEval = null;
+
+        // Init load
+        window.onload = function() {
+            updateWizardUI();
+            setEvalChoice('resolved_no_xray');
+        };
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun';
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            ['wizard', 'eval', 'matrix'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                btn.className = "flex-1 py-3 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-2";
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            activeBtn.className = "flex-1 py-3 px-3 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30";
+        }
+
+        // Selection Handlers
+        function setXray(val) {
+            selectedXray = val;
+            updateWizardUI();
+        }
+
+        function setEtd(val) {
+            selectedEtd = val;
+            updateWizardUI();
+        }
+
+        function setCmt(val) {
+            selectedCmt = val;
+            updateWizardUI();
+        }
+
+        function resetWizard() {
+            selectedXray = 'no_alarm_gt350';
+            selectedEtd = 'clear';
+            selectedCmt = 'both_negative';
+            updateWizardUI();
+        }
+
+        function resetAllForms() {
+            resetWizard();
+            setEvalChoice('resolved_no_xray');
+        }
+
+        // Update Wizard Layout & Calculate Result
+        function updateWizardUI() {
+            // Highlight active X-Ray button
+            ['no_alarm_gt350', 'red_any', 'red_and_yellow', 'shield_yellow'].forEach(k => {
+                const btn = document.getElementById(`xray-btn-${k}`);
+                if (k === selectedXray) {
+                    btn.classList.add('ring-4', 'ring-blue-500/50', 'border-blue-500');
+                } else {
+                    btn.classList.remove('ring-4', 'ring-blue-500/50', 'border-blue-500');
+                }
+            });
+
+            // Handle Shield exemption (Scenario 4)
+            const isShield = (selectedXray === 'shield_yellow');
+            const secondaryPanel = document.getElementById('secondary-testing-panel');
+            const shieldNotice = document.getElementById('shield-na-notice');
+
+            if (isShield) {
+                shieldNotice.classList.remove('hidden');
+            } else {
+                shieldNotice.classList.add('hidden');
+            }
+
+            // Highlight ETD buttons
+            ['clear', 'alarm'].forEach(k => {
+                const btn = document.getElementById(`etd-btn-${k}`);
+                if (k === selectedEtd && !isShield) {
+                    btn.className = "bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30";
+                } else {
+                    btn.className = "bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 opacity-60";
+                }
+            });
+
+            // Highlight CMT buttons
+            ['both_negative', 'one_or_both_positive'].forEach(k => {
+                const btn = document.getElementById(`cmt-btn-${k}`);
+                if (k === selectedCmt && !isShield) {
+                    btn.className = "bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30";
+                } else {
+                    btn.className = "bubble-btn p-3.5 border-2 text-center text-xs font-bold transition-all border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 opacity-60";
+                }
+            });
+
+            renderOutcomeCard();
+        }
+
+        // Rule Engine Logic
+        function renderOutcomeCard() {
+            const container = document.getElementById('outcome-card');
+            
+            let status = ''; // 'CLEAR', 'LEAD_CONTACT', 'ETD_PROCEDURE', 'CMT_PROCEDURE'
+            let scenarioNum = 1;
+            let title = '';
+            let details = [];
+            let badgeBg = '';
+            let borderGlow = '';
+
+            // SCENARIO 4: Shield Alarm
+            if (selectedXray === 'shield_yellow') {
+                scenarioNum = 4;
+                status = 'LEAD_CONTACT';
+                title = 'The Cremated Remains CANNOT Be Cleared';
+                badgeBg = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
+                borderGlow = 'glow-amber border-amber-500 bg-amber-500/5';
+                details = [
+                    'The cremated remains cannot be cleared.',
+                    'Contact your SDM or Line Lead to explain the options to the passenger.',
+                    'ETD / CMT testing is not required for shield alarms.'
+                ];
+            }
+            // SCENARIO 1: Single Red Alarm on Any Volume
+            else if (selectedXray === 'red_any') {
+                if (selectedEtd === 'clear' && selectedCmt === 'both_negative') {
+                    scenarioNum = 1;
+                    status = 'CLEAR';
+                    title = 'CLEAR THE CREMATED REMAINS';
+                    badgeBg = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200';
+                    borderGlow = 'glow-green border-emerald-500 bg-emerald-500/5';
+                    details = [
+                        'ETD trace does not alarm AND both Colourimetric results are NEGATIVE.',
+                        'The cremated remains may be cleared for departure.'
+                    ];
+                } else if (selectedEtd === 'alarm') {
+                    scenarioNum = 1;
+                    status = 'ETD_PROCEDURE';
+                    title = 'Follow ETD Alarm Resolution Procedures';
+                    badgeBg = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200';
+                    borderGlow = 'glow-red border-red-500 bg-red-500/5';
+                    details = [
+                        'Follow ETD alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                } else if (selectedEtd === 'clear' && selectedCmt === 'one_or_both_positive') {
+                    scenarioNum = 1;
+                    status = 'CMT_PROCEDURE';
+                    title = 'Follow CMT Alarm Resolution Procedures';
+                    badgeBg = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200';
+                    borderGlow = 'glow-red border-red-500 bg-red-500/5';
+                    details = [
+                        'Follow CMT alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                }
+            }
+            // SCENARIO 3: Red System Alarm or Two System Alarms (Red & Yellow)
+            else if (selectedXray === 'red_and_yellow') {
+                scenarioNum = 3;
+                if (selectedEtd === 'clear' && selectedCmt === 'both_negative') {
+                    status = 'LEAD_CONTACT';
+                    title = 'The Cremated Remains CANNOT Be Cleared';
+                    badgeBg = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
+                    borderGlow = 'glow-amber border-amber-500 bg-amber-500/5';
+                    details = [
+                        'The ETD trace does not alarm AND both Colourimetric results are NEGATIVE.',
+                        'The cremated remains CANNOT be cleared.',
+                        'Contact your SDM or Line Lead to explain the options to the passenger.'
+                    ];
+                } else if (selectedEtd === 'alarm') {
+                    status = 'ETD_PROCEDURE';
+                    title = 'Follow ETD Alarm Resolution Procedures';
+                    badgeBg = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200';
+                    borderGlow = 'glow-red border-red-500 bg-red-500/5';
+                    details = [
+                        'Follow ETD alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                } else if (selectedEtd === 'clear' && selectedCmt === 'one_or_both_positive') {
+                    status = 'CMT_PROCEDURE';
+                    title = 'Follow CMT Alarm Resolution Procedures';
+                    badgeBg = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200';
+                    borderGlow = 'glow-red border-red-500 bg-red-500/5';
+                    details = [
+                        'Follow CMT alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                }
+            }
+            // SCENARIO 2: No System Alarm (>350 mL)
+            else if (selectedXray === 'no_alarm_gt350') {
+                scenarioNum = 2;
+                if (selectedEtd === 'clear' && selectedCmt === 'both_negative') {
+                    status = 'CLEAR';
+                    title = 'CLEAR THE CREMATED REMAINS';
+                    badgeBg = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200';
+                    borderGlow = 'glow-green border-emerald-500 bg-emerald-500/5';
+                    details = [
+                        'ETD trace does not alarm AND both Colourimetric results are NEGATIVE.',
+                        'Clear the cremated remains.'
+                    ];
+                } else if (selectedEtd === 'alarm') {
+                    status = 'ETD_PROCEDURE';
+                    title = 'Follow ETD Alarm Resolution Procedures';
+                    badgeBg = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
+                    borderGlow = 'glow-amber border-amber-500 bg-amber-500/5';
+                    details = [
+                        'Follow ETD alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                } else if (selectedEtd === 'clear' && selectedCmt === 'one_or_both_positive') {
+                    status = 'CMT_PROCEDURE';
+                    title = 'Follow CMT Alarm Resolution Procedures';
+                    badgeBg = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
+                    borderGlow = 'glow-amber border-amber-500 bg-amber-500/5';
+                    details = [
+                        'Follow CMT alarm resolution procedures.',
+                        'The cremated remains CANNOT be cleared.'
+                    ];
+                }
+            }
+
+            // Icon selection
+            let iconClass = 'fa-solid fa-circle-check text-emerald-500';
+            if (status === 'LEAD_CONTACT') iconClass = 'fa-solid fa-user-shield text-amber-500';
+            if (status === 'ETD_PROCEDURE' || status === 'CMT_PROCEDURE') iconClass = 'fa-solid fa-triangle-exclamation text-red-500';
+
+            container.innerHTML = `
+                <div class="bubble-card p-6 border-2 transition-all ${borderGlow} bg-white dark:bg-slate-900">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl"><i class="${iconClass}"></i></div>
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full ${badgeBg}">
+                                    Scenario ${scenarioNum} Determination
+                                </span>
+                                <h3 class="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${title}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Required Actions:</div>
+                        ${details.map(d => `
+                            <div class="flex items-start gap-3 text-slate-800 dark:text-slate-200 text-sm font-semibold bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
+                                <i class="fa-solid fa-chevron-right text-blue-500 text-xs mt-1"></i>
+                                <span>${d}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Page 9 Evaluation Logic
+        function setEvalChoice(type) {
+            selectedEval = type;
+
+            ['resolved_no_xray', 'resolved_with_xray', 'cannot_resolve'].forEach(k => {
+                const btn = document.getElementById(`eval-btn-${k}`);
+                if (k === type) {
+                    btn.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500');
+                }
+            });
+
+            const container = document.getElementById('eval-outcome-container');
+
+            if (type === 'resolved_no_xray') {
+                container.innerHTML = `
+                    <div class="bubble-card p-6 bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-500 glow-green">
+                        <div class="flex items-start gap-4">
+                            <i class="fa-solid fa-user-check text-emerald-500 text-3xl mt-1"></i>
+                            <div>
+                                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Page 9 Outcome · Scenario 2</span>
+                                <h4 class="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">The cremated remains and the passenger MAY BE CLEARED.</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">ETD/CMT alarm resolved with no threats detected AND X-ray did not generate a system alarm.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'resolved_with_xray') {
+                container.innerHTML = `
+                    <div class="bubble-card p-6 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-500 glow-amber">
+                        <div class="flex items-start gap-4">
+                            <i class="fa-solid fa-user-shield text-amber-500 text-3xl mt-1"></i>
+                            <div>
+                                <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wide">Page 9 Outcome · Scenario 3</span>
+                                <h4 class="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">Passenger CAN continue, but cremated remains CANNOT be cleared.</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 font-semibold">Contact your SDM or Line Lead to explain the options to the passenger.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'cannot_resolve') {
+                container.innerHTML = `
+                    <div class="bubble-card p-6 bg-red-50 dark:bg-red-950/40 border-2 border-red-500 glow-red">
+                        <div class="flex items-start gap-4">
+                            <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mt-1"></i>
+                            <div>
+                                <span class="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wide">EMERGENCY PROTOCOL</span>
+                                <h4 class="text-xl font-extrabold text-red-700 dark:text-red-400 mt-0.5">Initiate Emergency Procedures.</h4>
+                                <p class="text-xs text-slate-700 dark:text-slate-200 mt-2 font-medium">Alarm cannot be resolved. Immediately initiate emergency procedures for unverified threat / alarm handling.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Copy Decision text helper
+        function copyWizardResult() {
+            const summary = `CREMATED REMAINS SCREENING SUMMARY
+X-Ray Result: ${selectedXray}
+ETD Result: ${selectedEtd}
+CMT Result: ${selectedCmt}
+Generated via Official Screening Job Aid Companion Tool.`;
+            
+            if (document.execCommand) {
+                const el = document.createElement('textarea');
+                el.value = summary;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('Decision summary copied to clipboard.');
+            }
+        }
+    </script>
+</body>
+</html>
