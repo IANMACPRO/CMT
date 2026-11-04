@@ -98,10 +98,10 @@ function getDecision(){
   cls="danger"; passenger="Follow approved passenger disposition options.";
  }else if(system){
   title="CLEAR URN"; cls="success";
-  if(clear){detail="An X-ray system alarm occurred. Even though ETD and both CMT results are clear, the remains cannot be cleared. Contact the SDM or Line Lead to explain approved options.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options.";}
-  else if(any&&allResolved){detail="Alarm resolution is recorded with no threat detected. The remains still cannot be cleared because the X-ray system alarm occurred.";passenger="The passenger may continue only if permitted by the applicable procedure; confirm disposition with the SDM or Line Lead.";}
-  else if(any){detail="A system alarm occurred. Complete applicable alarm resolution, but the remains cannot be cleared even if resolution succeeds. If an alarm cannot be resolved or a threat is found, initiate Emergency Procedures.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options; do not infer passenger clearance.";}
-  else{detail="A system alarm occurred. The remains cannot be cleared. Record all required test results and contact the SDM or Line Lead for approved options.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options.";}
+  if(clear){detail="An X-ray system alarm occurred but the ETD results and CMT results are both clear,the urn can be cleared. Contact the SDM or Line Lead to explain approved options.";passenger="The urn is clear the passenger may proceed under the applicable approved clearance proceedure.";}
+  else if(any&&allResolved){detail="Alarm resolution is recorded with no threat detected. The remains still cannot be cleared because the X-ray system alarm occurred.";passenger="The required ETD and CMT alarm resolutions are complete and no threat was detected. The urn can be cleared.";}
+  else if(any){detail="An ETD or CMT alarm remains unresolved. Do not clear the urn.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options; do not infer passenger clearance.";}
+  else{detail="An ETD or CMT alarm remains unresolved. Do not clear the urn. Complete the required alarm resolution steps. If a threat or concealed weoapon is detected, initiate emergency proceedures.";passenger="Do not clear the urn. Complete the required alarm resolution steps. If a threat or concealed weapon is detected, initiate emergency proceedures.";}
  }else if(shortcut){
   title="CLEAR URN"; urn="CLEAR"; cls="success";
   detail="Under-350 mL, no-system-alarm shortcut confirmed. Use only when all approved shortcut conditions are met.";
