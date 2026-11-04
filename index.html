@@ -97,7 +97,7 @@ function getDecision(){
   title="DO NOT CLEAR URN"; detail="Full shield: the urn cannot proceed. No testing or alarm-resolution steps apply in this pathway.";
   cls="danger"; passenger="Follow approved passenger disposition options.";
  }else if(system){
-  title="DO NOT CLEAR URN"; cls="danger";
+  title="CLEAR URN"; cls="success";
   if(clear){detail="An X-ray system alarm occurred. Even though ETD and both CMT results are clear, the remains cannot be cleared. Contact the SDM or Line Lead to explain approved options.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options.";}
   else if(any&&allResolved){detail="Alarm resolution is recorded with no threat detected. The remains still cannot be cleared because the X-ray system alarm occurred.";passenger="The passenger may continue only if permitted by the applicable procedure; confirm disposition with the SDM or Line Lead.";}
   else if(any){detail="A system alarm occurred. Complete applicable alarm resolution, but the remains cannot be cleared even if resolution succeeds. If an alarm cannot be resolved or a threat is found, initiate Emergency Procedures.";passenger="Refer to the SDM or Line Lead for approved passenger disposition options; do not infer passenger clearance.";}
